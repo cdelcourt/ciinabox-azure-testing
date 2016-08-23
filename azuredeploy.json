@@ -2,13 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "templateVersion": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Version of the Azure template that will be used when referencing the nested templates"
-      }
-    },
     "region": {
       "type": "string",
       "defaultValue": "Australia East",
@@ -60,12 +53,6 @@
       "type": "string",
       "metadata": {
         "description": "DNS Name for the publicly accessible app node. Must be lowercase. It should match with the following regular expression: ^[a-z][a-z0-9-]{1,61}[a-z0-9]$ or it will raise an error."
-      }
-    },
-    "sasToken": {
-      "type": "securestring",
-      "metadata": {
-        "description": "The SAS token for authenticating against the storage container"
       }
     },
     "ciinaboxVmSize": {
@@ -135,7 +122,7 @@
       "scripts": [
         "[variables('bootstrapUrl')]"
       ]
-    },
+    }
   },
   "resources": [
     {
@@ -194,7 +181,7 @@
             "value": "[parameters('namespace')]"
           },
           "vmbasename": {
-            "value": "[concat('ciinabox', copyindex())]"
+            "value": "[concat(parameters('namespace'), '-ciinabox-host')]"
           },
           "subnet": {
             "value": "[variables('networkSettings').subnet.dse]"

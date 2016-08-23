@@ -188,7 +188,7 @@
         "settings": {
 		  "autoUpgradeMinorVersion": true,
           "fileUris": "[parameters('osSettings').scripts]",
-          "commandToExecute": "[concat('bash bootstrap.sh ', variables('trimRegion'), ' ciinabox ', parameters('environment'), ' ', parameters('ciinaboxDomain'))]",
+          "commandToExecute": "[concat('bash bootstrap.sh ', variables('trimRegion'), ' ciinabox ', parameters('environment'), ' ', parameters('ciinaboxDomain'))]"
         }
       }
     }

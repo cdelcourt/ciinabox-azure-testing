@@ -23,6 +23,13 @@
         "description": "Shortname Environment name"
       }
     },
+    "ciinaboxDomain": {
+      "type": "string",
+      "defaultValue": "jenkins.tools.example.com",
+      "metadata": {
+        "description": "URL to access environment from"
+      }
+    },
     "environment": {
       "type": "string",
       "defaultValue": "ciinabox",
@@ -129,6 +136,7 @@
         "[variables('bootstrapUrl')]"
       ]
     },
+  },
   "resources": [
     {
       "name": "[concat(parameters('environment'), '-Shared-Stack')]",
@@ -199,6 +207,9 @@
           },
           "vmSize": {
             "value": "[parameters('ciinaboxVmSize')]"
+          },
+          "ciinaboxDomain": {
+            "value": "[parameters('ciinaboxDomain')]"
           },
           "osSettings": {
             "value": "[variables('ciinaboxOsSettings')]"

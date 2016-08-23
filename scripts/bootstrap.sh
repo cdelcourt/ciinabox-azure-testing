@@ -21,7 +21,7 @@ if [ -f /etc/profile.d/env.sh ]; then
 fi
 
 # Configure and start the docker service
-#yum update -y
+#yum update -y ### REMEMBER TO EXCLUDE WAAGENT WHEN RE-ENABLING THIS
 curl -fsSL https://get.docker.com/ | sh
 service docker start
 

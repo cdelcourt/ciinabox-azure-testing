@@ -22,10 +22,11 @@ fi
 
 # Configure and start the docker service
 #yum update -y ### REMEMBER TO EXCLUDE WAAGENT WHEN RE-ENABLING THIS
+yum install screen -y
 curl -fsSL https://get.docker.com/ | sh
 service docker start
 
 # Configure and run the Ciinabox containers in screen
-screen -S jwilder -d -m docker run -d -p 80:80 -v /var/run/docker.sock:/tmp/docker.sock:ro jwilder/nginx-proxy
-screen -S ciinabox-jenkins -d -m docker run -e VIRTUAL_HOST=$DOMAIN_NAME -e VIRTUAL_PORT=8080  base2/ciinabox-jenkins
-screen -S ciinabox-slave-jenkins -d -m docker run --name jenkins-docker-slave --privileged=true -d -e PORT=4444 -p 4444:4444 -p 2223:22 -v /data/dind/:/var/lib/docker ciinabox-jenkins-slave:testing start-dind
+screen -S jwilder -d -m docker run --name nginx-proxy -p 80:80 -v /var/run/docker.sock:/tmp/docker.sock:ro jwilder/nginx-proxy
+screen -S ciinabox-jenkins -d -m docker run --name jenkins-ciinabox -e VIRTUAL_HOST=$DOMAIN_NAME -e VIRTUAL_PORT=8080 base2/ciinabox-jenkins
+screen -S ciinabox-slave-jenkins -d -m docker run --name jenkins-docker-slave --privileged=true -e PORT=4444 -p 4444:4444 -p 2223:22 -v /data/dind/:/var/lib/docker base2/ciinabox-jenkins-slave start-dind

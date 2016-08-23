@@ -1,0 +1,211 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "templateVersion": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Version of the Azure template that will be used when referencing the nested templates"
+      }
+    },
+    "region": {
+      "type": "string",
+      "defaultValue": "Australia East",
+      "metadata": {
+        "description": "Location where resources will be provisioned"
+      }
+    },
+    "namespace": {
+      "type": "string",
+      "defaultValue": "staging",
+      "metadata": {
+        "description": "Shortname Environment name"
+      }
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "ciinabox",
+      "metadata": {
+        "description": "Full environment name (for tags, etc.)"
+      }
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "ciinabox",
+      "metadata": {
+        "description": "Name of the virtual network provisioned for the cluster"
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Administrator user name used when provisioning virtual machines"
+      }
+    },
+    "sshKeyData": {
+        "type": "String",
+        "metadata": {
+            "description": "SSH RSA public key file as a string."
+        }
+    },
+    "dnsNamePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "DNS Name for the publicly accessible app node. Must be lowercase. It should match with the following regular expression: ^[a-z][a-z0-9-]{1,61}[a-z0-9]$ or it will raise an error."
+      }
+    },
+    "sasToken": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The SAS token for authenticating against the storage container"
+      }
+    },
+    "ciinaboxVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_A0",
+      "allowedValues": [
+      "Standard_A0",
+      "Standard_A1"
+      ],
+      "metadata": {
+        "description": "The size of the virtual machines used when provisioning the Ciinabox node"
+      }
+    },
+    "storageType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+      "Standard_LRS",
+      "Premium_LRS"
+      ],
+      "metadata": {
+        "description": "The type of storage account used for the deployment"
+      }
+    },
+    "bootstrapScript": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Location of the bootstrap script that will run chef on the instances"
+      }
+    }
+  },
+  "variables": {
+    "templateBaseUrl": "https://raw.githubusercontent.com/cdelcourt/ciinabox-azure-testing/master/",
+    "sharedTemplateUrl": "[concat(variables('templateBaseUrl'), 'templates/shared.json')]",
+    "ciinaboxTemplateUrl": "[concat(variables('templateBaseUrl'), 'templates/ciinabox.json')]",
+    "bootstrapUrl": "[concat(variables('templateBaseUrl'), 'scripts/bootstrap.sh')]",
+    "namespace": "[concat(parameters('namespace'), '-')]",
+	"apiVersion": "2015-01-01",
+    "networkSettings": {
+      "virtualNetworkName": "[parameters('virtualNetworkName')]",
+      "addressPrefix": "10.0.0.0/16",
+      "subnet": {
+        "dse": {
+          "name": "dse",
+          "prefix": "10.0.0.0/24",
+          "vnet": "[parameters('virtualNetworkName')]"
+        }
+      },
+      "statics": {
+        "clusterRange": {
+          "base": "10.0.0.",
+          "start": 5
+        },
+        "appip": "10.0.0.200",
+        "natip": "10.0.0.50",
+        "dbip": "10.0.0.7"
+      }
+    },
+    "ciinaboxOsSettings": {
+      "imageReference": {
+        "publisher": "OpenLogic",
+        "offer": "CentOS",
+        "sku": "7.1",
+        "version": "latest"
+      },
+      "scripts": [
+        "[variables('bootstrapUrl')]"
+      ]
+    },
+  "resources": [
+    {
+      "name": "[concat(parameters('environment'), '-Shared-Stack')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('apiVersion')]",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('sharedTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "region": {
+            "value": "[parameters('region')]"
+          },
+          "storageType": {
+            "value": "[parameters('storageType')]"
+          },
+          "namespace": {
+            "value": "[parameters('namespace')]"
+          },
+          "networkSettings": {
+            "value": "[variables('networkSettings')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "[concat(parameters('environment'), '-ciinabox-Stack')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('apiVersion')]",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/', parameters('environment'), '-Shared-Stack')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('ciinaboxTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "region": {
+            "value": "[parameters('region')]"
+          },
+          "environment": {
+            "value": "[parameters('environment')]"
+          },
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "sshKeyData": {
+            "value": "[parameters('sshKeyData')]"
+          },
+          "namespace": {
+            "value": "[parameters('namespace')]"
+          },
+          "vmbasename": {
+            "value": "[concat('ciinabox', copyindex())]"
+          },
+          "subnet": {
+            "value": "[variables('networkSettings').subnet.dse]"
+          },
+          "dnsname": {
+            "value": "[parameters('dnsNamePrefix')]"
+          },
+          "staticIp": {
+            "value": "[variables('networkSettings').statics.ciinaboxip]"
+          },
+          "vmSize": {
+            "value": "[parameters('ciinaboxVmSize')]"
+          },
+          "osSettings": {
+            "value": "[variables('ciinaboxOsSettings')]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}

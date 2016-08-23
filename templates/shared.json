@@ -1,0 +1,67 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "region": {
+      "type": "string",
+      "metadata": {
+        "Description": "Location where resources will be provisioned"
+      }
+    },
+    "storageType": {
+      "type": "string",
+      "metadata": {
+        "Description": "The type of storage account used for the deployment"
+      }
+    },
+    "namespace": {
+      "type": "string",
+      "metadata": {
+        "description": "Prefix to specify the environment name (lowercase characters and numbers only)"
+      }
+    },
+    "networkSettings": {
+      "type": "object",
+      "metadata": {
+        "Description": "Network settings object"
+      }
+    }
+  },
+  "variables": {
+    "storageAccountName": "[concat(uniquestring(resourceGroup().id), parameters('namespace'), 'storage')]",
+	"apiVersion": "2015-06-15"
+
+  },
+  "resources": [
+    {
+      "apiVersion": "[variables('apiVersion')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('storageAccountName')]",
+      "location": "[parameters('region')]",
+      "properties": {
+        "accountType": "[parameters('storageType')]"
+      }
+    },
+    {
+      "apiVersion": "[variables('apiVersion')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[parameters('networkSettings').virtualNetworkName]",
+      "location": "[parameters('region')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('networkSettings').addressPrefix]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('networkSettings').subnet.dse.name]",
+            "properties": {
+              "addressPrefix": "[parameters('networkSettings').subnet.dse.prefix]"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

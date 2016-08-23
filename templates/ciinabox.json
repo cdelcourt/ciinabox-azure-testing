@@ -158,6 +158,17 @@
         },
         "storageProfile": {
           "imageReference": "[parameters('osSettings').imageReference]",
+          "dataDisks": [
+            {
+              "name": "datadisk1",
+              "diskSizeGB": "100",
+              "lun": 0,
+              "vhd": {
+                "uri": "[concat('http://', variables('storageAccountName'),'.blob.core.windows.net/vhds/', parameters('vmbasename'), '-datadisk1.vhd')]"
+              },
+              "createOption": "Empty"
+            }
+          ],
           "osDisk": {
             "name": "osdisk",
             "vhd": {

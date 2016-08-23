@@ -57,10 +57,12 @@
     },
     "ciinaboxVmSize": {
       "type": "string",
-      "defaultValue": "Standard_A0",
+      "defaultValue": "Standard_D1_v2",
       "allowedValues": [
       "Standard_A0",
-      "Standard_A1"
+      "Standard_A1",
+      "Standard_D1_V2",
+      "Standard_D2_V2"
       ],
       "metadata": {
         "description": "The size of the virtual machines used when provisioning the Ciinabox node"

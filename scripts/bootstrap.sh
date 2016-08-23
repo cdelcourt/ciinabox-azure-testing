@@ -21,9 +21,9 @@ if [ -f /etc/profile.d/env.sh ]; then
 fi
 
 # Configure and start the docker service
-sudo yum update
+yum update -y
 curl -fsSL https://get.docker.com/ | sh
-sudo service docker start
+service docker start
 
 # Configure and run the Ciinabox containers in screen
 screen -S jwilder -d -m docker run -d -p 80:80 -v /var/run/docker.sock:/tmp/docker.sock:ro jwilder/nginx-proxy

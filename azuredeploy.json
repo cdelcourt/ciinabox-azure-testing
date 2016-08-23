@@ -107,9 +107,7 @@
           "base": "10.0.0.",
           "start": 5
         },
-        "appip": "10.0.0.200",
-        "natip": "10.0.0.50",
-        "dbip": "10.0.0.7"
+        "ciinaboxip": "10.0.0.50"
       }
     },
     "ciinaboxOsSettings": {

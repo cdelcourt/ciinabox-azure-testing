@@ -32,6 +32,9 @@
     "subnet": {
       "type": "object"
     },
+    "ciinaboxDomain": {
+      "type": "string"
+    },
     "staticIp": {
       "type": "string"
     }

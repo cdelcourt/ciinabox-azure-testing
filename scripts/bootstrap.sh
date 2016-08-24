@@ -26,16 +26,16 @@ yum install screen -y
 curl -fsSL https://get.docker.com/ | sh
 service docker start
 
-# Mount data volume
-#echo '/dev/xvdf   /data        ext4    defaults,nofail 0   2' >> /etc/fstab
-#rm -rf /data && mkdir -p /data
-#mount /data && echo \"Data volume already formatted\" || mkfs -t ext4 /dev/xvdf
-#mount -a && echo 'Mounting Data volume' || echo 'Failed to mount Data volume'
+# Mount data volume - sdc because sdb = temporary SSD storage
+echo '/dev/sdc   /data        ext4    defaults,nofail 0   2' >> /etc/fstab
+rm -rf /data && mkdir -p /data
+mount /data && echo \"Data volume already formatted\" || mkfs -F -t ext4 /dev/sdc
+mount -a && echo 'Mounting Data volume' || echo 'Failed to mount Data volume'
 
 # Prepare directories
-chmod -R 777 /data
 mkdir /data/jenkins
 mkdir /data/jenkins-dind
+chmod -R 777 /data
 chown 1000:1000 /data/jenkins /data/jenkins-dind
 
 # Configure and run the Ciinabox containers in screen

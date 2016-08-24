@@ -26,7 +26,12 @@ yum install screen -y
 curl -fsSL https://get.docker.com/ | sh
 service docker start
 
+# Prepare directories
+mkdir /data/jenkins
+mkdir /data/jenkins-dind
+chown 1000:1000 /data/jenkins /data/jenkins-dind
+
 # Configure and run the Ciinabox containers in screen
-screen -S jwilder -d -m docker run --name nginx-proxy -p 80:80 -v /var/run/docker.sock:/tmp/docker.sock:ro jwilder/nginx-proxy
-screen -S ciinabox-jenkins -d -m docker run --name jenkins-ciinabox -e VIRTUAL_HOST=$DOMAIN_NAME -e VIRTUAL_PORT=8080 base2/ciinabox-jenkins
-screen -S ciinabox-slave-jenkins -d -m docker run --name jenkins-docker-slave --privileged=true -e PORT=4444 -p 4444:4444 -p 2223:22 -v /data/dind/:/var/lib/docker base2/ciinabox-jenkins-slave start-dind
+screen -S nginx-proxy -d -m docker run --name nginx-proxy -p 80:80 -v /var/run/docker.sock:/tmp/docker.sock:ro jwilder/nginx-proxy
+screen -S ciinabox-jenkins -d -m docker run --name ciinabox-jenkins -e VIRTUAL_HOST=$DOMAIN_NAME -e VIRTUAL_PORT=8080 -v /data/jenkins:/var/jenkins_home base2/ciinabox-jenkins:2
+screen -S ciinabox-slave-jenkins -d -m docker run --name ciinabox-slave-jenkins --privileged=true -e PORT=4444 -p 4444:4444 -p 2223:22 -v /data/jenkins-dind/:/var/lib/docker base2/ciinabox-jenkins-slave start-dind

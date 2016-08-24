@@ -12,7 +12,7 @@ export AZURE_STORAGE_ACCOUNT=
 export AZURE_STORAGE_ACCESS_KEY=
 
 #If npm doesn't exist, install npm and Azure CLI
-rpm -qa | grep -qw "epel-release" || yum install -y epel-releas
+rpm -qa | grep -qw "epel-release" || yum install -y epel-release
 rpm -qa | grep -qw nodejs || curl --silent --location https://rpm.nodesource.com/setup_4.x | bash - && yum install -y nodejs && npm install -g azure-cli
 rpm -qa | grep -qw python-pip || yum install -y python-pip
 
@@ -26,7 +26,14 @@ yum install screen -y
 curl -fsSL https://get.docker.com/ | sh
 service docker start
 
+# Mount data volume
+#echo '/dev/xvdf   /data        ext4    defaults,nofail 0   2' >> /etc/fstab
+#rm -rf /data && mkdir -p /data
+#mount /data && echo \"Data volume already formatted\" || mkfs -t ext4 /dev/xvdf
+#mount -a && echo 'Mounting Data volume' || echo 'Failed to mount Data volume'
+
 # Prepare directories
+chmod -R 777 /data
 mkdir /data/jenkins
 mkdir /data/jenkins-dind
 chown 1000:1000 /data/jenkins /data/jenkins-dind

@@ -4,7 +4,7 @@
   "parameters": {
     "region": {
       "type": "string",
-      "defaultValue": "Australia East",
+      "defaultValue": "australiaeast",
       "metadata": {
         "description": "Location where resources will be provisioned"
       }
